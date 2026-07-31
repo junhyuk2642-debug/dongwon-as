@@ -1,0 +1,294 @@
+```html
+<!doctype html>
+<html lang="ko">
+  <head>
+    <meta charset="UTF-8" />
+
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+
+    <title>동원모터펌프 AS 접수</title>
+
+    <link rel="stylesheet" href="style.css" />
+  </head>
+
+  <body>
+    <main class="container">
+      <!-- 상단 제목 -->
+      <header class="header">
+        <div class="logo">DW</div>
+
+        <div>
+          <p class="company-name">동원모터펌프</p>
+          <h1>AS 방문 접수</h1>
+        </div>
+      </header>
+
+      <!-- 안내문 -->
+      <section class="notice">
+        <strong>접수 전 확인해 주세요.</strong>
+
+        <p>
+          정확한 제품 확인을 위해 모터·펌프 명판 사진과 이상 부위 사진을 함께
+          등록해 주세요.
+        </p>
+      </section>
+
+      <!-- 고객 접수 양식 -->
+      <form id="requestForm">
+        <!-- 현장 정보 -->
+        <section class="form-section">
+          <h2>현장 정보</h2>
+
+          <div class="form-group">
+            <label for="siteName">
+              현장명 또는 업체명
+              <span>*</span>
+            </label>
+
+            <input
+              type="text"
+              id="siteName"
+              name="siteName"
+              placeholder="예: 행복빌딩"
+              required
+            />
+          </div>
+
+          <div class="form-group">
+            <label for="customerName">
+              담당자 이름
+              <span>*</span>
+            </label>
+
+            <input
+              type="text"
+              id="customerName"
+              name="customerName"
+              placeholder="담당자 이름을 입력해 주세요"
+              required
+            />
+          </div>
+
+          <div class="form-group">
+            <label for="phone">
+              연락처
+              <span>*</span>
+            </label>
+
+            <input
+              type="tel"
+              id="phone"
+              name="phone"
+              placeholder="010-0000-0000"
+              required
+            />
+          </div>
+
+          <div class="form-group">
+            <label for="address">
+              사업장 주소
+              <span>*</span>
+            </label>
+
+            <input
+              type="text"
+              id="address"
+              name="address"
+              placeholder="방문할 주소를 입력해 주세요"
+              required
+            />
+          </div>
+
+          <div class="form-group">
+            <label for="addressDetail"> 상세 주소 </label>
+
+            <input
+              type="text"
+              id="addressDetail"
+              name="addressDetail"
+              placeholder="건물명, 층수, 기계실 위치 등"
+            />
+          </div>
+        </section>
+
+        <!-- 고장 정보 -->
+        <section class="form-section">
+          <h2>고장 정보</h2>
+
+          <div class="form-group">
+            <label for="equipmentType">
+              설비 종류
+              <span>*</span>
+            </label>
+
+            <select id="equipmentType" name="equipmentType" required>
+              <option value="">선택해 주세요</option>
+              <option value="pump">펌프</option>
+              <option value="motor">모터</option>
+              <option value="pump-motor">모터펌프 세트</option>
+              <option value="control-panel">제어반</option>
+              <option value="unknown">잘 모르겠음</option>
+              <option value="other">기타</option>
+            </select>
+          </div>
+
+          <div class="form-group">
+            <label for="symptom">
+              고장 증상
+              <span>*</span>
+            </label>
+
+            <textarea
+              id="symptom"
+              name="symptom"
+              rows="5"
+              placeholder="예: 펌프에서 큰 소음이 나고 물이 올라오지 않습니다."
+              required
+            ></textarea>
+          </div>
+
+          <div class="form-group">
+            <label>긴급 여부</label>
+
+            <div class="radio-box">
+              <label class="radio-item">
+                <input type="radio" name="urgent" value="normal" checked />
+                일반 접수
+              </label>
+
+              <label class="radio-item urgent">
+                <input type="radio" name="urgent" value="urgent" />
+                긴급 접수
+              </label>
+            </div>
+          </div>
+        </section>
+
+        <!-- 사진 첨부 -->
+        <section class="form-section">
+          <h2>사진 첨부</h2>
+
+          <div class="form-group">
+            <label for="nameplatePhoto">
+              모터·펌프 명판 사진
+              <span>*</span>
+            </label>
+
+            <p class="help-text">
+              제조사, 모델명, 전압 등이 보이도록 촬영해 주세요.
+            </p>
+
+            <input
+              type="file"
+              id="nameplatePhoto"
+              name="nameplatePhoto"
+              accept="image/*"
+              capture="environment"
+              required
+            />
+          </div>
+
+          <div class="form-group">
+            <label for="problemPhoto">
+              이상 부위 사진
+              <span>*</span>
+            </label>
+
+            <p class="help-text">
+              누수, 파손, 설치 상태 등이 잘 보이도록 촬영해 주세요.
+            </p>
+
+            <input
+              type="file"
+              id="problemPhoto"
+              name="problemPhoto"
+              accept="image/*"
+              capture="environment"
+              required
+            />
+          </div>
+        </section>
+
+        <!-- 방문 희망 일정 -->
+        <section class="form-section">
+          <h2>방문 희망 일정</h2>
+
+          <div class="form-group">
+            <label for="visitDate">
+              희망 방문 날짜
+              <span>*</span>
+            </label>
+
+            <input type="date" id="visitDate" name="visitDate" required />
+
+            <label class="schedule-anytime">
+              <input
+                type="checkbox"
+                id="scheduleAnytime"
+                name="scheduleAnytime"
+              />
+
+              <span> 업체 일정에 맞춰 상시 방문 가능합니다. </span>
+            </label>
+          </div>
+
+          <div class="form-group" id="visitTimeGroup">
+            <label for="visitTime">
+              희망 시간대
+              <span>*</span>
+            </label>
+
+            <select id="visitTime" name="visitTime" required>
+              <option value="">선택해 주세요</option>
+              <option value="morning">오전 9시~12시</option>
+              <option value="afternoon">오후 12시~3시</option>
+              <option value="late-afternoon">오후 3시~6시</option>
+              <option value="anytime">시간 협의 가능</option>
+            </select>
+          </div>
+
+          <div class="form-group">
+            <label for="requestNote"> 추가 요청사항 </label>
+
+            <textarea
+              id="requestNote"
+              name="requestNote"
+              rows="3"
+              placeholder="출입 방법이나 주차 위치 등을 적어 주세요."
+            ></textarea>
+          </div>
+        </section>
+
+        <!-- 전화 문의 -->
+        <section class="phone-contact">
+          <p class="phone-title">빠른 상담이 필요하신가요?</p>
+
+          <p class="phone-description">
+            긴급한 경우 아래 번호를 눌러 AS 대리점으로 바로 연결할 수 있습니다.
+          </p>
+
+          <a href="tel:010-5203-0110" class="phone-button">
+            ☎ AS 대리점 연결
+            <strong>010-5203-0110</strong>
+          </a>
+        </section>
+
+        <!-- 개인정보 동의 -->
+        <section class="agreement">
+          <label>
+            <input type="checkbox" id="privacyAgreement" required />
+
+            AS 접수를 위한 개인정보 수집 및 이용에 동의합니다.
+          </label>
+        </section>
+
+        <!-- 접수 버튼 -->
+        <button type="submit" class="submit-button">AS 접수하기</button>
+
+        <p class="footer-text">접수 내용을 확인한 후 담당자가 연락드립니다.</p>
+      </form>
+    </main>
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+    <script src="app.js"></script>
+  </body>
+</html>

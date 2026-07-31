@@ -1,0 +1,337 @@
+/* 모든 요소의 크기 계산 방식을 통일 */
+* {
+  box-sizing: border-box;
+}
+
+/* 페이지 전체 */
+body {
+  margin: 0;
+  background-color: #f3f5f7;
+  color: #1f2937;
+  font-family: Arial, 'Noto Sans KR', sans-serif;
+}
+
+/* 전체 접수 화면 */
+.container {
+  width: 100%;
+  max-width: 620px;
+  margin: 0 auto;
+  padding: 24px 16px 50px;
+}
+
+/* 상단 회사 영역 */
+.header {
+  display: flex;
+  align-items: center;
+  gap: 14px;
+  margin-bottom: 22px;
+}
+
+.logo {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+
+  width: 52px;
+  height: 52px;
+
+  border-radius: 14px;
+  background-color: #175cd3;
+  color: white;
+
+  font-size: 19px;
+  font-weight: 700;
+}
+
+.company-name {
+  margin: 0 0 4px;
+  color: #667085;
+  font-size: 14px;
+}
+
+.header h1 {
+  margin: 0;
+  font-size: 25px;
+}
+
+/* 안내 박스 */
+.notice {
+  margin-bottom: 18px;
+  padding: 17px;
+
+  border: 1px solid #b9d4ff;
+  border-radius: 14px;
+  background-color: #eef5ff;
+}
+
+.notice strong {
+  display: block;
+  margin-bottom: 7px;
+  color: #1849a9;
+}
+
+.notice p {
+  margin: 0;
+  color: #344054;
+  font-size: 14px;
+  line-height: 1.6;
+}
+
+/* 각 입력 영역 */
+.form-section {
+  margin-bottom: 18px;
+  padding: 22px 18px;
+
+  border: 1px solid #e4e7ec;
+  border-radius: 16px;
+  background-color: white;
+
+  box-shadow: 0 4px 14px rgba(16, 24, 40, 0.04);
+}
+
+.form-section h2 {
+  margin: 0 0 20px;
+  padding-bottom: 13px;
+
+  border-bottom: 1px solid #eaecf0;
+
+  font-size: 18px;
+}
+
+/* 입력 항목 한 묶음 */
+.form-group {
+  margin-bottom: 19px;
+}
+
+.form-group:last-child {
+  margin-bottom: 0;
+}
+
+/* 입력 제목 */
+.form-group > label {
+  display: block;
+  margin-bottom: 8px;
+
+  color: #344054;
+  font-size: 15px;
+  font-weight: 700;
+}
+
+.form-group label span {
+  color: #d92d20;
+}
+
+/* 입력칸 공통 */
+input,
+select,
+textarea {
+  width: 100%;
+  padding: 13px 14px;
+
+  border: 1px solid #d0d5dd;
+  border-radius: 10px;
+  background-color: white;
+
+  color: #101828;
+  font-size: 16px;
+}
+
+textarea {
+  resize: vertical;
+  line-height: 1.5;
+}
+
+/* 입력칸 선택 상태 */
+input:focus,
+select:focus,
+textarea:focus {
+  border-color: #175cd3;
+  outline: 3px solid rgba(23, 92, 211, 0.12);
+}
+
+/* 사진 선택 입력칸 */
+input[type='file'] {
+  padding: 11px;
+  background-color: #f9fafb;
+}
+
+/* 설명 글씨 */
+.help-text {
+  margin: -2px 0 10px;
+  color: #667085;
+  font-size: 13px;
+  line-height: 1.5;
+}
+
+/* 긴급 여부 */
+.radio-box {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 10px;
+}
+
+.radio-item {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+
+  padding: 13px;
+  border: 1px solid #d0d5dd;
+  border-radius: 10px;
+
+  font-size: 14px;
+}
+
+.radio-item input {
+  width: auto;
+  margin: 0;
+}
+
+.radio-item.urgent {
+  border-color: #fecdca;
+  background-color: #fff5f5;
+  color: #b42318;
+}
+
+/* 개인정보 동의 */
+.agreement {
+  margin: 20px 2px;
+}
+
+.agreement label {
+  display: flex;
+  align-items: flex-start;
+  gap: 9px;
+
+  color: #475467;
+  font-size: 14px;
+  line-height: 1.5;
+}
+
+.agreement input {
+  width: 18px;
+  height: 18px;
+  margin-top: 1px;
+}
+
+/* 접수 버튼 */
+.submit-button {
+  width: 100%;
+  padding: 16px;
+
+  border: none;
+  border-radius: 12px;
+  background-color: #175cd3;
+  color: white;
+
+  font-size: 17px;
+  font-weight: 700;
+  cursor: pointer;
+}
+
+.submit-button:hover {
+  background-color: #1849a9;
+}
+
+/* 하단 안내 */
+.footer-text {
+  margin-top: 14px;
+  color: #667085;
+  font-size: 13px;
+  text-align: center;
+}
+
+/* 휴대폰 화면 조정 */
+@media (max-width: 480px) {
+  .container {
+    padding: 18px 12px 40px;
+  }
+
+  .form-section {
+    padding: 20px 15px;
+  }
+
+  .header h1 {
+    font-size: 22px;
+  }
+
+  .radio-box {
+    grid-template-columns: 1fr;
+  }
+}
+/* 업체 일정에 맞춰 방문 가능 */
+.schedule-anytime {
+  display: flex;
+  align-items: center;
+  gap: 9px;
+
+  margin-top: 12px;
+  padding: 13px 14px;
+
+  border: 1px solid #b9d4ff;
+  border-radius: 10px;
+  background-color: #f5f9ff;
+
+  color: #1849a9;
+  font-size: 14px;
+  font-weight: 600;
+  cursor: pointer;
+}
+
+.schedule-anytime input {
+  width: 18px;
+  height: 18px;
+  margin: 0;
+}
+
+/* 전화 문의 영역 */
+.phone-contact {
+  margin-bottom: 18px;
+  padding: 20px 18px;
+
+  border: 1px solid #b9d4ff;
+  border-radius: 16px;
+  background-color: #eef5ff;
+
+  text-align: center;
+}
+
+.phone-title {
+  margin: 0 0 6px;
+
+  color: #1849a9;
+  font-size: 17px;
+  font-weight: 700;
+}
+
+.phone-description {
+  margin: 0 0 15px;
+
+  color: #475467;
+  font-size: 13px;
+  line-height: 1.5;
+}
+
+.phone-button {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+
+  padding: 14px;
+
+  border-radius: 11px;
+  background-color: #175cd3;
+  color: white;
+
+  font-size: 15px;
+  font-weight: 600;
+  text-decoration: none;
+}
+
+.phone-button strong {
+  font-size: 18px;
+}
+
+.phone-button:hover {
+  background-color: #1849a9;
+}

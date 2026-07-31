@@ -1,0 +1,275 @@
+* {
+  box-sizing: border-box;
+}
+
+body {
+  margin: 0;
+  background: #f3f5f9;
+  color: #17233d;
+  font-family:
+    Arial,
+    "Noto Sans KR",
+    sans-serif;
+}
+
+button,
+select {
+  font: inherit;
+}
+
+button {
+  cursor: pointer;
+}
+
+.admin-container {
+  width: min(100% - 24px, 850px);
+  margin: 0 auto;
+  padding: 22px 0 50px;
+}
+
+.admin-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 14px;
+  margin-bottom: 18px;
+}
+
+.company-name {
+  margin: 0 0 5px;
+  color: #3157a4;
+  font-size: 14px;
+  font-weight: 700;
+}
+
+h1 {
+  margin: 0;
+  font-size: 27px;
+}
+
+#refreshButton {
+  flex-shrink: 0;
+  padding: 11px 15px;
+  border: 0;
+  border-radius: 10px;
+  background: #1c3473;
+  color: white;
+  font-weight: 700;
+}
+
+#refreshButton:disabled {
+  cursor: wait;
+  opacity: 0.6;
+}
+
+.summary {
+  margin-bottom: 14px;
+  padding: 16px 18px;
+  border-radius: 13px;
+  background: white;
+  box-shadow: 0 5px 16px rgba(30, 45, 80, 0.06);
+}
+
+.summary strong {
+  font-size: 18px;
+}
+
+.summary p {
+  margin: 5px 0 0;
+  color: #68738a;
+  font-size: 14px;
+}
+
+.filter-tabs {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 7px;
+  margin-bottom: 16px;
+  padding: 5px;
+  border-radius: 13px;
+  background: #e5e9f1;
+}
+
+.filter-tab {
+  min-height: 45px;
+  border: 0;
+  border-radius: 9px;
+  background: transparent;
+  color: #657088;
+  font-weight: 700;
+}
+
+.filter-tab.active {
+  background: white;
+  color: #1d3470;
+  box-shadow: 0 3px 10px rgba(30, 45, 80, 0.1);
+}
+
+.request-list {
+  display: grid;
+  gap: 15px;
+}
+
+.request-card {
+  padding: 20px;
+  border: 1px solid #dee4ef;
+  border-radius: 16px;
+  background: white;
+  box-shadow: 0 7px 20px rgba(30, 45, 80, 0.06);
+}
+
+.request-card.completed {
+  border-color: #cadbcf;
+  background: #fbfdfb;
+}
+
+.request-card-top {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 12px;
+  margin-bottom: 16px;
+}
+
+.request-number {
+  margin: 0 0 5px;
+  color: #3157a4;
+  font-size: 13px;
+  font-weight: 700;
+}
+
+.request-name {
+  margin: 0;
+  font-size: 21px;
+}
+
+.status-badge {
+  flex-shrink: 0;
+  padding: 7px 11px;
+  border-radius: 999px;
+  background: #e7ecf7;
+  color: #1d3470;
+  font-size: 13px;
+  font-weight: 700;
+}
+
+.status-badge.completed {
+  background: #e4f2e7;
+  color: #236236;
+}
+
+.info-row {
+  display: grid;
+  grid-template-columns: 88px 1fr;
+  gap: 10px;
+  margin-top: 11px;
+  line-height: 1.55;
+}
+
+.info-label {
+  color: #68738a;
+  font-weight: 700;
+}
+
+.info-value {
+  min-width: 0;
+  overflow-wrap: anywhere;
+  white-space: pre-line;
+}
+
+.card-actions {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 9px;
+  margin-top: 19px;
+}
+
+.action-button {
+  display: flex;
+  min-height: 47px;
+  align-items: center;
+  justify-content: center;
+  border-radius: 10px;
+  text-decoration: none;
+  font-weight: 700;
+}
+
+.call-button {
+  background: #1d3470;
+  color: white;
+}
+
+.map-button {
+  background: #e7ecf7;
+  color: #1d3470;
+}
+
+.status-control {
+  margin-top: 15px;
+  padding-top: 15px;
+  border-top: 1px solid #e4e8f0;
+}
+
+.status-control label {
+  display: block;
+  margin-bottom: 8px;
+  font-size: 14px;
+  font-weight: 700;
+}
+
+.status-select {
+  width: 100%;
+  min-height: 48px;
+  padding: 10px 12px;
+  border: 1px solid #cbd3e0;
+  border-radius: 10px;
+  background: white;
+  color: #17233d;
+  font-weight: 700;
+}
+
+.status-select:disabled {
+  cursor: wait;
+  opacity: 0.6;
+}
+
+.state-message {
+  padding: 35px 18px;
+  border-radius: 14px;
+  background: white;
+  color: #68738a;
+  text-align: center;
+}
+
+.error {
+  color: #b42318;
+}
+
+.hidden {
+  display: none !important;
+}
+
+@media (max-width: 600px) {
+  .admin-container {
+    width: min(100% - 18px, 850px);
+    padding-top: 16px;
+  }
+
+  h1 {
+    font-size: 23px;
+  }
+
+  .request-card {
+    padding: 17px;
+  }
+
+  .info-row {
+    grid-template-columns: 75px 1fr;
+    font-size: 14px;
+  }
+
+  .filter-tab {
+    padding: 5px;
+    font-size: 13px;
+  }
+}
