@@ -18,7 +18,6 @@ const STATUS_OPTIONS = [
 let allRequests = [];
 let currentFilter = 'active';
 
-/* HTML 특수문자 처리 */
 function escapeHtml(value) {
   return String(value ?? '')
     .replaceAll('&', '&amp;')
@@ -28,7 +27,6 @@ function escapeHtml(value) {
     .replaceAll("'", '&#039;');
 }
 
-/* 접수 날짜 표시 */
 function formatDate(dateString) {
   if (!dateString) {
     return '-';
@@ -41,13 +39,45 @@ function formatDate(dateString) {
   }).format(new Date(dateString));
 }
 
-/* 관리자 링크의 key 가져오기 */
+function formatAdminVisitDate(dateString) {
+  if (!dateString) {
+    return '아직 정하지 않음';
+  }
+
+  return new Intl.DateTimeFormat('ko-KR', {
+    year: 'numeric',
+    month: 'long',
+    day: 'numeric',
+    weekday: 'short',
+    hour: '2-digit',
+    minute: '2-digit',
+    hour12: true,
+    timeZone: 'Asia/Seoul',
+  }).format(new Date(dateString));
+}
+
+function toDatetimeLocalValue(dateString) {
+  if (!dateString) {
+    return '';
+  }
+
+  const date = new Date(dateString);
+
+  if (Number.isNaN(date.getTime())) {
+    return '';
+  }
+
+  const koreaTime = new Date(date.getTime() + 9 * 60 * 60 * 1000);
+
+  return koreaTime.toISOString().slice(0, 16);
+}
+
 function getAdminKey() {
   const urlParams = new URLSearchParams(window.location.search);
+
   return urlParams.get('key');
 }
 
-/* 기존 상태값 정리 */
 function normalizeStatus(status) {
   if (!status || status === '접수완료') {
     return '신규 접수';
@@ -56,10 +86,7 @@ function normalizeStatus(status) {
   return status;
 }
 
-/* 상태별 CSS 클래스 */
 function getStatusClass(status) {
-  const normalizedStatus = normalizeStatus(status);
-
   const statusClasses = {
     '신규 접수': 'status-new',
     '고객 연락 완료': 'status-contacted',
@@ -68,10 +95,9 @@ function getStatusClass(status) {
     '처리 완료': 'status-completed',
   };
 
-  return statusClasses[normalizedStatus] || 'status-new';
+  return statusClasses[normalizeStatus(status)] || 'status-new';
 }
 
-/* 고장 정보 분리 */
 function parseProblemText(problemText) {
   const result = {
     siteName: '',
@@ -81,25 +107,24 @@ function parseProblemText(problemText) {
     requestNote: '',
   };
 
-  const lines = String(problemText ?? '').split('\n');
+  String(problemText ?? '')
+    .split('\n')
+    .forEach((line) => {
+      const text = line.trim();
 
-  lines.forEach((line) => {
-    const trimmedLine = line.trim();
+      if (text.startsWith('현장명:')) {
+        result.siteName = text.replace('현장명:', '').trim();
+      } else if (text.startsWith('설비 종류:')) {
+        result.equipmentType = text.replace('설비 종류:', '').trim();
+      } else if (text.startsWith('긴급 여부:')) {
+        result.urgent = text.replace('긴급 여부:', '').trim();
+      } else if (text.startsWith('고장 증상:')) {
+        result.symptom = text.replace('고장 증상:', '').trim();
+      } else if (text.startsWith('추가 요청사항:')) {
+        result.requestNote = text.replace('추가 요청사항:', '').trim();
+      }
+    });
 
-    if (trimmedLine.startsWith('현장명:')) {
-      result.siteName = trimmedLine.replace('현장명:', '').trim();
-    } else if (trimmedLine.startsWith('설비 종류:')) {
-      result.equipmentType = trimmedLine.replace('설비 종류:', '').trim();
-    } else if (trimmedLine.startsWith('긴급 여부:')) {
-      result.urgent = trimmedLine.replace('긴급 여부:', '').trim();
-    } else if (trimmedLine.startsWith('고장 증상:')) {
-      result.symptom = trimmedLine.replace('고장 증상:', '').trim();
-    } else if (trimmedLine.startsWith('추가 요청사항:')) {
-      result.requestNote = trimmedLine.replace('추가 요청사항:', '').trim();
-    }
-  });
-
-  /* 예전 접수 데이터 대응 */
   if (!result.symptom && problemText) {
     result.symptom = String(problemText);
   }
@@ -107,7 +132,81 @@ function parseProblemText(problemText) {
   return result;
 }
 
-/* 사진 주소를 배열로 변환 */
+/* 설비 종류를 관리자 화면에서 한글로 표시 */
+function getEquipmentLabel(value) {
+  const original = String(value ?? '').trim();
+  const normalized = original.toLowerCase();
+
+  const equipmentLabels = {
+    pump: '펌프',
+    motor: '모터',
+
+    'pump-motor': '모터펌프 세트',
+    'motor-pump': '모터펌프 세트',
+    pump_motor: '모터펌프 세트',
+    motor_pump: '모터펌프 세트',
+    pumpmotor: '모터펌프 세트',
+
+    'control-panel': '제어판넬',
+    control_panel: '제어판넬',
+    controlpanel: '제어판넬',
+
+    unknown: '잘 모르겠음',
+    unsure: '잘 모르겠음',
+
+    other: '기타',
+  };
+
+  const koreanValues = [
+    '펌프',
+    '모터',
+    '모터펌프 세트',
+    '제어판넬',
+    '잘 모르겠음',
+    '잘모르겠음',
+    '기타',
+  ];
+
+  if (koreanValues.includes(original)) {
+    if (original === '잘모르겠음') {
+      return '잘 모르겠음';
+    }
+
+    return original;
+  }
+
+  return equipmentLabels[normalized] || '기타';
+}
+
+/* 긴급 여부를 한글과 색상용 클래스로 변환 */
+function getUrgencyInfo(value) {
+  const normalized = String(value ?? '')
+    .trim()
+    .toLowerCase();
+
+  const urgentValues = [
+    'urgent',
+    'emergency',
+    '긴급',
+    '긴급 접수',
+    '긴급접수',
+    'yes',
+    'true',
+  ];
+
+  if (urgentValues.includes(normalized)) {
+    return {
+      label: '긴급',
+      className: 'urgency-urgent',
+    };
+  }
+
+  return {
+    label: '보통',
+    className: 'urgency-normal',
+  };
+}
+
 function parseImageUrls(value) {
   if (!value) {
     return [];
@@ -117,40 +216,45 @@ function parseImageUrls(value) {
     return value.filter(Boolean);
   }
 
-  const stringValue = String(value).trim();
+  const text = String(value).trim();
 
-  if (!stringValue) {
+  if (!text) {
     return [];
   }
 
   try {
-    const parsedValue = JSON.parse(stringValue);
+    const parsed = JSON.parse(text);
 
-    if (Array.isArray(parsedValue)) {
-      return parsedValue.filter(Boolean);
+    if (Array.isArray(parsed)) {
+      return parsed.filter(Boolean);
     }
 
-    if (typeof parsedValue === 'string') {
-      return [parsedValue];
+    if (typeof parsed === 'string') {
+      return [parsed];
     }
   } catch (error) {
-    /* 기존 URL 1개 저장 방식 대응 */
+    /*
+     * 예전 데이터처럼 사진 주소가 한 개만
+     * 저장된 경우도 아래에서 처리한다.
+     */
   }
 
-  if (stringValue.startsWith('http://') || stringValue.startsWith('https://')) {
-    return [stringValue];
+  if (text.startsWith('http://') || text.startsWith('https://')) {
+    return [text];
   }
 
   return [];
 }
 
-/* 사진 목록 만들기 */
 function createImageGallery(title, imageUrls, type) {
   if (imageUrls.length === 0) {
     return `
       <div class="photo-section">
         <h3>${escapeHtml(title)}</h3>
-        <p class="no-photo">등록된 사진이 없습니다.</p>
+
+        <p class="no-photo">
+          등록된 사진이 없습니다.
+        </p>
       </div>
     `;
   }
@@ -176,9 +280,12 @@ function createImageGallery(title, imageUrls, type) {
     .join('');
 
   return `
-    <div class="photo-section photo-section-${escapeHtml(type)}">
+    <div
+      class="photo-section photo-section-${escapeHtml(type)}"
+    >
       <div class="photo-section-header">
         <h3>${escapeHtml(title)}</h3>
+
         <span>${imageUrls.length}장</span>
       </div>
 
@@ -189,7 +296,6 @@ function createImageGallery(title, imageUrls, type) {
   `;
 }
 
-/* 현재 필터의 접수만 가져오기 */
 function getFilteredRequests() {
   if (currentFilter === 'completed') {
     return allRequests.filter(
@@ -206,7 +312,6 @@ function getFilteredRequests() {
   return allRequests;
 }
 
-/* 상단 설명 */
 function getSummaryMessage() {
   if (currentFilter === 'completed') {
     return '처리 완료된 접수입니다. 필요한 접수만 직접 삭제할 수 있습니다.';
@@ -219,26 +324,30 @@ function getSummaryMessage() {
   return '현재 확인하거나 방문해야 할 접수입니다.';
 }
 
-/* 상태 선택 옵션 */
 function createStatusOptions(currentStatus) {
   return STATUS_OPTIONS.map((status) => {
     const selected = status === currentStatus ? 'selected' : '';
 
     return `
-      <option value="${escapeHtml(status)}" ${selected}>
+      <option
+        value="${escapeHtml(status)}"
+        ${selected}
+      >
         ${escapeHtml(status)}
       </option>
     `;
   }).join('');
 }
-
-/* 접수 카드 만들기 */
 function createRequestCard(request) {
   const status = normalizeStatus(request.status);
   const statusClass = getStatusClass(status);
   const isCompleted = status === '처리 완료';
 
   const problemInfo = parseProblemText(request.problem);
+
+  const equipmentLabel = getEquipmentLabel(problemInfo.equipmentType);
+
+  const urgencyInfo = getUrgencyInfo(problemInfo.urgent);
 
   const mainTitle =
     problemInfo.siteName ||
@@ -250,9 +359,11 @@ function createRequestCard(request) {
   const customerName = request.customer_name || '담당자 이름 없음';
 
   const phone = request.phone || '-';
+
   const safePhone = String(phone).replace(/[^0-9+]/g, '');
 
   const address = request.address || '-';
+
   const encodedAddress = encodeURIComponent(address);
 
   const nameplateImages = parseImageUrls(request.nameplate_image);
@@ -290,11 +401,13 @@ function createRequestCard(request) {
           </h2>
 
           <div class="customer-contact">
-            <span class="customer-name">
+            <span>
               담당자 ${escapeHtml(customerName)}
             </span>
 
-            <span class="contact-divider">·</span>
+            <span class="contact-divider">
+              ·
+            </span>
 
             <a href="tel:${escapeHtml(safePhone)}">
               ${escapeHtml(phone)}
@@ -305,7 +418,9 @@ function createRequestCard(request) {
         <div class="request-card-controls">
           ${deleteButton}
 
-          <span class="status-badge ${statusClass}">
+          <span
+            class="status-badge ${statusClass}"
+          >
             ${escapeHtml(status)}
           </span>
         </div>
@@ -318,18 +433,14 @@ function createRequestCard(request) {
           </span>
 
           <strong class="equipment-type">
-            ${escapeHtml(problemInfo.equipmentType || '미입력')}
+            ${escapeHtml(equipmentLabel)}
           </strong>
 
-          ${
-            problemInfo.urgent
-              ? `
-                <span class="urgent-badge">
-                  ${escapeHtml(problemInfo.urgent)}
-                </span>
-              `
-              : ''
-          }
+          <span
+            class="urgent-badge ${urgencyInfo.className}"
+          >
+            ${escapeHtml(urgencyInfo.label)}
+          </span>
         </div>
 
         <div class="symptom-box">
@@ -346,7 +457,9 @@ function createRequestCard(request) {
           problemInfo.requestNote
             ? `
               <div class="request-note-box">
-                <span>추가 요청사항</span>
+                <span>
+                  추가 요청사항
+                </span>
 
                 <p>
                   ${escapeHtml(problemInfo.requestNote)}
@@ -360,7 +473,7 @@ function createRequestCard(request) {
       <div class="visit-information">
         <div class="info-row">
           <span class="info-label">
-            방문 일정
+            고객 희망 일정
           </span>
 
           <span class="info-value">
@@ -368,7 +481,7 @@ function createRequestCard(request) {
           </span>
         </div>
 
-        <div class="info-row address-row">
+        <div class="info-row">
           <span class="info-label">
             현장 주소
           </span>
@@ -378,6 +491,35 @@ function createRequestCard(request) {
           </span>
         </div>
       </div>
+
+      <section class="admin-visit-section">
+        <div class="admin-visit-title">
+          <strong>
+            관리자 방문 예정
+          </strong>
+
+          <span class="admin-visit-current">
+            ${escapeHtml(formatAdminVisitDate(request.admin_visit_at))}
+          </span>
+        </div>
+
+        <div class="admin-visit-controls">
+          <input
+            type="datetime-local"
+            class="admin-visit-input"
+            data-request-id="${escapeHtml(request.id)}"
+            value="${escapeHtml(toDatetimeLocalValue(request.admin_visit_at))}"
+          />
+
+          <button
+            type="button"
+            class="save-visit-button"
+            data-request-id="${escapeHtml(request.id)}"
+          >
+            일정 저장
+          </button>
+        </div>
+      </section>
 
       <div class="card-actions">
         <a
@@ -406,8 +548,12 @@ function createRequestCard(request) {
         ${createImageGallery('이상 부위 사진', problemImages, 'problem')}
       </section>
 
-      <div class="status-control ${statusClass}">
-        <label for="status-${escapeHtml(request.id)}">
+      <div
+        class="status-control ${statusClass}"
+      >
+        <label
+          for="status-${escapeHtml(request.id)}"
+        >
           처리 상태
         </label>
 
@@ -424,11 +570,11 @@ function createRequestCard(request) {
   `;
 }
 
-/* 접수 카드 화면 표시 */
 function renderRequests() {
   const filteredRequests = getFilteredRequests();
 
   requestList.innerHTML = '';
+
   emptyMessage.classList.add('hidden');
 
   requestCount.textContent = `접수 ${filteredRequests.length}건`;
@@ -443,15 +589,17 @@ function renderRequests() {
   requestList.innerHTML = filteredRequests.map(createRequestCard).join('');
 }
 
-/* 접수 목록 불러오기 */
 async function loadRequests() {
   const adminKey = getAdminKey();
 
   errorMessage.classList.add('hidden');
+
   emptyMessage.classList.add('hidden');
+
   loadingMessage.classList.remove('hidden');
 
   refreshButton.disabled = true;
+
   refreshButton.textContent = '불러오는 중';
 
   if (!adminKey) {
@@ -462,7 +610,9 @@ async function loadRequests() {
     errorMessage.classList.remove('hidden');
 
     refreshButton.disabled = false;
+
     refreshButton.textContent = '새로고침';
+
     return;
   }
 
@@ -497,11 +647,11 @@ async function loadRequests() {
     errorMessage.classList.remove('hidden');
   } finally {
     refreshButton.disabled = false;
+
     refreshButton.textContent = '새로고침';
   }
 }
 
-/* 접수 상태 변경 */
 async function updateRequestStatus(selectElement) {
   const adminKey = getAdminKey();
 
@@ -515,6 +665,7 @@ async function updateRequestStatus(selectElement) {
     alert('관리자 링크 또는 접수번호를 확인해 주세요.');
 
     selectElement.value = previousStatus;
+
     return;
   }
 
@@ -561,6 +712,71 @@ async function updateRequestStatus(selectElement) {
   }
 }
 
+async function saveAdminVisit(requestId, buttonElement) {
+  const adminKey = getAdminKey();
+
+  const input = requestList.querySelector(
+    `.admin-visit-input[data-request-id="${requestId}"]`,
+  );
+
+  if (!adminKey || !requestId || !input) {
+    alert('관리자 링크 또는 방문 일정 입력란을 확인해 주세요.');
+
+    return;
+  }
+
+  if (!input.value) {
+    alert('방문 예정 날짜와 시간을 선택해 주세요.');
+
+    return;
+  }
+
+  buttonElement.disabled = true;
+
+  buttonElement.textContent = '저장 중';
+
+  try {
+    const response = await fetch(
+      `/api/requests?key=${encodeURIComponent(adminKey)}`,
+      {
+        method: 'PATCH',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+          id: requestId,
+          admin_visit_at: input.value,
+        }),
+      },
+    );
+
+    const result = await response.json();
+
+    if (!response.ok) {
+      throw new Error(result.message || '방문 일정을 저장하지 못했습니다.');
+    }
+
+    const targetRequest = allRequests.find(
+      (request) => Number(request.id) === Number(requestId),
+    );
+
+    if (targetRequest) {
+      targetRequest.admin_visit_at = result.admin_visit_at;
+    }
+
+    renderRequests();
+
+    alert('관리자 방문 일정이 저장되었습니다.');
+  } catch (error) {
+    console.error('방문 일정 저장 오류:', error);
+
+    alert(`${error.message}\n잠시 후 다시 시도해 주세요.`);
+
+    buttonElement.disabled = false;
+
+    buttonElement.textContent = '일정 저장';
+  }
+}
 /* 처리 완료 접수 삭제 */
 async function deleteRequest(requestId) {
   const adminKey = getAdminKey();
@@ -579,9 +795,7 @@ async function deleteRequest(requestId) {
     return;
   }
 
-  const status = normalizeStatus(targetRequest.status);
-
-  if (status !== '처리 완료') {
+  if (normalizeStatus(targetRequest.status) !== '처리 완료') {
     alert('처리 완료 상태의 접수만 삭제할 수 있습니다.');
     return;
   }
@@ -631,7 +845,6 @@ async function deleteRequest(requestId) {
     );
 
     renderRequests();
-
     alert('접수 내역이 삭제되었습니다.');
   } catch (error) {
     console.error('접수 삭제 오류:', error);
@@ -645,54 +858,102 @@ async function deleteRequest(requestId) {
   }
 }
 
-/* 사진 확대창 생성 */
+/* 사진을 밀기 시작한 위치 */
+let modalTouchStartX = null;
+let modalTouchStartY = null;
+
+/* 사진 확대창 준비 */
 function ensureImageModal() {
   let imageModal = document.getElementById('imageModal');
 
-  if (imageModal) {
-    return imageModal;
+  if (!imageModal) {
+    document.body.insertAdjacentHTML(
+      'beforeend',
+      `
+        <div
+          id="imageModal"
+          class="image-modal hidden"
+          role="dialog"
+          aria-modal="true"
+          aria-label="사진 확대 보기"
+        >
+          <button
+            type="button"
+            id="closeImageModal"
+            class="image-modal-close"
+            aria-label="사진 닫기"
+          >
+            ×
+          </button>
+
+          <img
+            id="modalImage"
+            class="image-modal-content"
+            src=""
+            alt="확대된 접수 사진"
+          />
+        </div>
+      `,
+    );
+
+    imageModal = document.getElementById('imageModal');
   }
 
-  document.body.insertAdjacentHTML(
-    'beforeend',
-    `
-      <div
-        id="imageModal"
-        class="image-modal hidden"
-        role="dialog"
-        aria-modal="true"
-        aria-label="사진 확대 보기"
-      >
-        <button
-          type="button"
-          id="closeImageModal"
-          class="image-modal-close"
-          aria-label="사진 닫기"
-        >
-          ×
-        </button>
+  if (imageModal.dataset.eventsBound !== 'true') {
+    const closeButton = imageModal.querySelector('#closeImageModal');
 
-        <img
-          id="modalImage"
-          class="image-modal-content"
-          src=""
-          alt="확대된 접수 사진"
-        />
-      </div>
-    `,
-  );
-
-  imageModal = document.getElementById('imageModal');
-
-  const closeButton = document.getElementById('closeImageModal');
-
-  closeButton.addEventListener('click', closeImageModal);
-
-  imageModal.addEventListener('click', function (event) {
-    if (event.target === imageModal) {
-      closeImageModal();
+    if (closeButton) {
+      closeButton.addEventListener('click', function (event) {
+        event.preventDefault();
+        event.stopPropagation();
+        closeImageModal();
+      });
     }
-  });
+
+    /* 검은 배경을 눌러도 닫기 */
+    imageModal.addEventListener('click', function (event) {
+      if (event.target === imageModal) {
+        closeImageModal();
+      }
+    });
+
+    /* 휴대폰에서 좌우로 밀기 시작 */
+    imageModal.addEventListener(
+      'touchstart',
+      function (event) {
+        const touch = event.touches[0];
+
+        modalTouchStartX = touch.clientX;
+        modalTouchStartY = touch.clientY;
+      },
+      { passive: true },
+    );
+
+    /* 좌우로 충분히 밀면 확대창 닫기 */
+    imageModal.addEventListener(
+      'touchend',
+      function (event) {
+        if (modalTouchStartX === null || modalTouchStartY === null) {
+          return;
+        }
+
+        const touch = event.changedTouches[0];
+
+        const moveX = touch.clientX - modalTouchStartX;
+        const moveY = touch.clientY - modalTouchStartY;
+
+        modalTouchStartX = null;
+        modalTouchStartY = null;
+
+        if (Math.abs(moveX) >= 70 && Math.abs(moveX) > Math.abs(moveY)) {
+          closeImageModal();
+        }
+      },
+      { passive: true },
+    );
+
+    imageModal.dataset.eventsBound = 'true';
+  }
 
   return imageModal;
 }
@@ -700,20 +961,16 @@ function ensureImageModal() {
 /* 사진 확대 */
 function openImageModal(imageUrl) {
   const imageModal = ensureImageModal();
-
   const modalImage = document.getElementById('modalImage');
 
   modalImage.src = imageUrl;
-
   imageModal.classList.remove('hidden');
-
   document.body.classList.add('modal-open');
 }
 
 /* 확대 사진 닫기 */
 function closeImageModal() {
   const imageModal = document.getElementById('imageModal');
-
   const modalImage = document.getElementById('modalImage');
 
   if (!imageModal || !modalImage) {
@@ -721,13 +978,11 @@ function closeImageModal() {
   }
 
   imageModal.classList.add('hidden');
-
   modalImage.src = '';
-
   document.body.classList.remove('modal-open');
 }
 
-/* 필터 버튼 */
+/* 상단 필터 */
 filterButtons.forEach((button) => {
   button.addEventListener('click', function () {
     currentFilter = button.dataset.filter;
@@ -740,7 +995,7 @@ filterButtons.forEach((button) => {
   });
 });
 
-/* 상태 변경 */
+/* 처리 상태 변경 */
 requestList.addEventListener('change', function (event) {
   const statusSelect = event.target.closest('.status-select');
 
@@ -751,13 +1006,12 @@ requestList.addEventListener('change', function (event) {
   updateRequestStatus(statusSelect);
 });
 
-/* 사진 확대, 삭제, 티맵 버튼 */
+/* 사진 확대·삭제·방문 일정·티맵 */
 requestList.addEventListener('click', function (event) {
   const photoButton = event.target.closest('.photo-thumbnail-button');
 
   if (photoButton) {
     openImageModal(photoButton.dataset.imageUrl);
-
     return;
   }
 
@@ -765,6 +1019,13 @@ requestList.addEventListener('click', function (event) {
 
   if (deleteButton) {
     deleteRequest(Number(deleteButton.dataset.requestId));
+    return;
+  }
+
+  const saveVisitButton = event.target.closest('.save-visit-button');
+
+  if (saveVisitButton) {
+    saveAdminVisit(Number(saveVisitButton.dataset.requestId), saveVisitButton);
 
     return;
   }
@@ -785,7 +1046,7 @@ requestList.addEventListener('click', function (event) {
   }
 });
 
-/* ESC 키로 사진 닫기 */
+/* 컴퓨터에서는 ESC로 사진 닫기 */
 document.addEventListener('keydown', function (event) {
   if (event.key === 'Escape') {
     closeImageModal();

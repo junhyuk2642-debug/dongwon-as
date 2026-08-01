@@ -800,3 +800,107 @@ h1 {
     padding: 60px 10px 15px;
   }
 }
+/* 긴급·보통 표시 */
+
+.urgent-badge {
+  display: inline-flex;
+  min-height: 27px;
+  align-items: center;
+  justify-content: center;
+  padding: 5px 10px;
+  border-radius: 999px;
+  font-size: 12px;
+  font-weight: 900;
+}
+
+.urgent-badge.urgency-urgent {
+  border: 1px solid #f1aaaa;
+  background: #ffe3e3;
+  color: #b42318;
+}
+
+.urgent-badge.urgency-normal {
+  border: 1px solid #a7d9b8;
+  background: #e5f6eb;
+  color: #19703a;
+}
+
+/* 관리자 방문 예정 일정 */
+
+.admin-visit-section {
+  margin-top: 14px;
+  padding: 15px;
+  border: 1px solid #cfd9e8;
+  border-radius: 12px;
+  background: #f5f8fd;
+}
+
+.admin-visit-title {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: space-between;
+  gap: 8px;
+  margin-bottom: 11px;
+}
+
+.admin-visit-title strong {
+  color: #19356f;
+}
+
+.admin-visit-current {
+  color: #4f5d73;
+  font-size: 13px;
+  font-weight: 700;
+}
+
+.admin-visit-controls {
+  display: grid;
+  grid-template-columns: 1fr auto;
+  gap: 8px;
+}
+
+.admin-visit-input {
+  width: 100%;
+  min-height: 45px;
+  padding: 9px 10px;
+  border: 1px solid #bcc8da;
+  border-radius: 9px;
+  background: white;
+  color: #17233d;
+  font: inherit;
+}
+
+.save-visit-button {
+  min-height: 45px;
+  padding: 9px 15px;
+  border: 0;
+  border-radius: 9px;
+  background: #19356f;
+  color: white;
+  font-weight: 900;
+}
+
+.save-visit-button:disabled {
+  cursor: wait;
+  opacity: 0.6;
+}
+
+/* 사진 확대창 닫기 버튼과 스와이프 보강 */
+
+.image-modal-close {
+  z-index: 10001;
+  pointer-events: auto;
+  cursor: pointer;
+  touch-action: manipulation;
+}
+
+.image-modal {
+  touch-action: pan-y;
+}
+
+@media (max-width: 480px) {
+  .admin-visit-controls {
+    grid-template-columns: 1fr;
+  }
+}
