@@ -41,13 +41,13 @@ function formatDate(dateString) {
   }).format(new Date(dateString));
 }
 
-/* 관리자 키 가져오기 */
+/* 관리자 링크의 key 가져오기 */
 function getAdminKey() {
   const urlParams = new URLSearchParams(window.location.search);
   return urlParams.get('key');
 }
 
-/* 기존 접수완료 값을 신규 접수로 통일 */
+/* 기존 상태값 정리 */
 function normalizeStatus(status) {
   if (!status || status === '접수완료') {
     return '신규 접수';
@@ -71,7 +71,7 @@ function getStatusClass(status) {
   return statusClasses[normalizedStatus] || 'status-new';
 }
 
-/* DB에 합쳐서 저장된 고장 정보 분리 */
+/* 고장 정보 분리 */
 function parseProblemText(problemText) {
   const result = {
     siteName: '',
@@ -99,10 +99,7 @@ function parseProblemText(problemText) {
     }
   });
 
-  /*
-   * 예전 형식이라 구분 문구가 없을 경우
-   * 전체 내용을 고장 증상으로 표시
-   */
+  /* 예전 접수 데이터 대응 */
   if (!result.symptom && problemText) {
     result.symptom = String(problemText);
   }
@@ -110,7 +107,7 @@ function parseProblemText(problemText) {
   return result;
 }
 
-/* 사진 주소를 항상 배열로 변환 */
+/* 사진 주소를 배열로 변환 */
 function parseImageUrls(value) {
   if (!value) {
     return [];
@@ -137,10 +134,7 @@ function parseImageUrls(value) {
       return [parsedValue];
     }
   } catch (error) {
-    /*
-     * 과거 접수처럼 URL 한 개만 저장된 경우
-     * 그대로 배열로 반환
-     */
+    /* 기존 URL 1개 저장 방식 대응 */
   }
 
   if (stringValue.startsWith('http://') || stringValue.startsWith('https://')) {
@@ -150,7 +144,7 @@ function parseImageUrls(value) {
   return [];
 }
 
-/* 사진 썸네일 HTML 생성 */
+/* 사진 목록 만들기 */
 function createImageGallery(title, imageUrls, type) {
   if (imageUrls.length === 0) {
     return `
@@ -195,7 +189,7 @@ function createImageGallery(title, imageUrls, type) {
   `;
 }
 
-/* 현재 필터에 해당하는 접수 */
+/* 현재 필터의 접수만 가져오기 */
 function getFilteredRequests() {
   if (currentFilter === 'completed') {
     return allRequests.filter(
@@ -212,9 +206,10 @@ function getFilteredRequests() {
   return allRequests;
 }
 
+/* 상단 설명 */
 function getSummaryMessage() {
   if (currentFilter === 'completed') {
-    return '처리 완료된 접수입니다. 필요한 접수만 선택하여 삭제할 수 있습니다.';
+    return '처리 완료된 접수입니다. 필요한 접수만 직접 삭제할 수 있습니다.';
   }
 
   if (currentFilter === 'all') {
@@ -224,6 +219,7 @@ function getSummaryMessage() {
   return '현재 확인하거나 방문해야 할 접수입니다.';
 }
 
+/* 상태 선택 옵션 */
 function createStatusOptions(currentStatus) {
   return STATUS_OPTIONS.map((status) => {
     const selected = status === currentStatus ? 'selected' : '';
@@ -236,7 +232,7 @@ function createStatusOptions(currentStatus) {
   }).join('');
 }
 
-/* 접수 카드 생성 */
+/* 접수 카드 만들기 */
 function createRequestCard(request) {
   const status = normalizeStatus(request.status);
   const statusClass = getStatusClass(status);
@@ -244,10 +240,6 @@ function createRequestCard(request) {
 
   const problemInfo = parseProblemText(request.problem);
 
-  /*
-   * 현장명이 있으면 현장명을 크게 표시하고,
-   * 과거 접수처럼 현장명이 없으면 고객명을 대신 표시
-   */
   const mainTitle =
     problemInfo.siteName ||
     request.site_name ||
@@ -256,6 +248,7 @@ function createRequestCard(request) {
     '현장명 없음';
 
   const customerName = request.customer_name || '담당자 이름 없음';
+
   const phone = request.phone || '-';
   const safePhone = String(phone).replace(/[^0-9+]/g, '');
 
@@ -263,6 +256,7 @@ function createRequestCard(request) {
   const encodedAddress = encodeURIComponent(address);
 
   const nameplateImages = parseImageUrls(request.nameplate_image);
+
   const problemImages = parseImageUrls(request.problem_image);
 
   const deleteButton = isCompleted
@@ -319,7 +313,9 @@ function createRequestCard(request) {
 
       <section class="problem-main-section">
         <div class="equipment-heading">
-          <span class="equipment-label">설비 종류</span>
+          <span class="equipment-label">
+            설비 종류
+          </span>
 
           <strong class="equipment-type">
             ${escapeHtml(problemInfo.equipmentType || '미입력')}
@@ -337,7 +333,9 @@ function createRequestCard(request) {
         </div>
 
         <div class="symptom-box">
-          <p class="symptom-label">고장 내용</p>
+          <p class="symptom-label">
+            고장 내용
+          </p>
 
           <p class="symptom-text">
             ${escapeHtml(problemInfo.symptom || '고장 내용 없음')}
@@ -349,7 +347,10 @@ function createRequestCard(request) {
             ? `
               <div class="request-note-box">
                 <span>추가 요청사항</span>
-                <p>${escapeHtml(problemInfo.requestNote)}</p>
+
+                <p>
+                  ${escapeHtml(problemInfo.requestNote)}
+                </p>
               </div>
             `
             : ''
@@ -358,7 +359,9 @@ function createRequestCard(request) {
 
       <div class="visit-information">
         <div class="info-row">
-          <span class="info-label">방문 일정</span>
+          <span class="info-label">
+            방문 일정
+          </span>
 
           <span class="info-value">
             ${escapeHtml(request.visit_time || '-')}
@@ -366,7 +369,9 @@ function createRequestCard(request) {
         </div>
 
         <div class="info-row address-row">
-          <span class="info-label">현장 주소</span>
+          <span class="info-label">
+            현장 주소
+          </span>
 
           <span class="info-value">
             ${escapeHtml(address)}
@@ -419,6 +424,7 @@ function createRequestCard(request) {
   `;
 }
 
+/* 접수 카드 화면 표시 */
 function renderRequests() {
   const filteredRequests = getFilteredRequests();
 
@@ -426,6 +432,7 @@ function renderRequests() {
   emptyMessage.classList.add('hidden');
 
   requestCount.textContent = `접수 ${filteredRequests.length}건`;
+
   summaryText.textContent = getSummaryMessage();
 
   if (filteredRequests.length === 0) {
@@ -449,7 +456,9 @@ async function loadRequests() {
 
   if (!adminKey) {
     loadingMessage.classList.add('hidden');
+
     errorMessage.textContent = '올바른 관리자 링크로 접속해 주세요.';
+
     errorMessage.classList.remove('hidden');
 
     refreshButton.disabled = false;
@@ -475,13 +484,16 @@ async function loadRequests() {
     allRequests = Array.isArray(result) ? result : [];
 
     loadingMessage.classList.add('hidden');
+
     renderRequests();
   } catch (error) {
     console.error('관리자 목록 오류:', error);
 
     loadingMessage.classList.add('hidden');
+
     errorMessage.textContent =
       error.message || '접수 목록을 불러오지 못했습니다.';
+
     errorMessage.classList.remove('hidden');
   } finally {
     refreshButton.disabled = false;
@@ -492,12 +504,16 @@ async function loadRequests() {
 /* 접수 상태 변경 */
 async function updateRequestStatus(selectElement) {
   const adminKey = getAdminKey();
+
   const requestId = Number(selectElement.dataset.requestId);
+
   const previousStatus = selectElement.dataset.previousStatus;
+
   const newStatus = selectElement.value;
 
   if (!adminKey || !requestId) {
     alert('관리자 링크 또는 접수번호를 확인해 주세요.');
+
     selectElement.value = previousStatus;
     return;
   }
@@ -538,6 +554,7 @@ async function updateRequestStatus(selectElement) {
     console.error('처리 상태 변경 오류:', error);
 
     alert(`${error.message}\n잠시 후 다시 시도해 주세요.`);
+
     selectElement.value = previousStatus;
   } finally {
     selectElement.disabled = false;
@@ -614,6 +631,7 @@ async function deleteRequest(requestId) {
     );
 
     renderRequests();
+
     alert('접수 내역이 삭제되었습니다.');
   } catch (error) {
     console.error('접수 삭제 오류:', error);
@@ -627,7 +645,7 @@ async function deleteRequest(requestId) {
   }
 }
 
-/* 사진 확대창 만들기 */
+/* 사진 확대창 생성 */
 function ensureImageModal() {
   let imageModal = document.getElementById('imageModal');
 
@@ -679,17 +697,23 @@ function ensureImageModal() {
   return imageModal;
 }
 
+/* 사진 확대 */
 function openImageModal(imageUrl) {
   const imageModal = ensureImageModal();
+
   const modalImage = document.getElementById('modalImage');
 
   modalImage.src = imageUrl;
+
   imageModal.classList.remove('hidden');
+
   document.body.classList.add('modal-open');
 }
 
+/* 확대 사진 닫기 */
 function closeImageModal() {
   const imageModal = document.getElementById('imageModal');
+
   const modalImage = document.getElementById('modalImage');
 
   if (!imageModal || !modalImage) {
@@ -697,7 +721,9 @@ function closeImageModal() {
   }
 
   imageModal.classList.add('hidden');
+
   modalImage.src = '';
+
   document.body.classList.remove('modal-open');
 }
 
@@ -725,12 +751,13 @@ requestList.addEventListener('change', function (event) {
   updateRequestStatus(statusSelect);
 });
 
-/* 사진 확대, 접수 삭제, 티맵 실행 */
+/* 사진 확대, 삭제, 티맵 버튼 */
 requestList.addEventListener('click', function (event) {
   const photoButton = event.target.closest('.photo-thumbnail-button');
 
   if (photoButton) {
     openImageModal(photoButton.dataset.imageUrl);
+
     return;
   }
 
@@ -738,16 +765,13 @@ requestList.addEventListener('click', function (event) {
 
   if (deleteButton) {
     deleteRequest(Number(deleteButton.dataset.requestId));
+
     return;
   }
 
   const tmapButton = event.target.closest('.map-button');
 
   if (tmapButton) {
-    /*
-     * 모바일 브라우저에서 tmap:// 주소를 통해
-     * 티맵 앱의 주소 검색을 실행한다.
-     */
     event.preventDefault();
 
     const address = tmapButton.dataset.address;
