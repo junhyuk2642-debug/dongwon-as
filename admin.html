@@ -70,6 +70,24 @@
       </p>
 
       <section id="requestList" class="request-list"></section>
+    <!-- 사진 확대 모달 -->
+  <div id="imageModal" class="image-modal hidden">
+  <button
+    type="button"
+    id="closeImageModal"
+    class="image-modal-close"
+    aria-label="사진 닫기"
+  >
+    ×
+  </button>
+
+  <img
+    id="modalImage"
+    class="image-modal-content"
+    src=""
+    alt="확대된 접수 사진"
+  />
+</div>  
     </main>
 
     <script src="admin.js"></script>
