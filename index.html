@@ -7,6 +7,19 @@
 
     <title>동원모터펌프 AS 접수</title>
 
+    <!-- 고객용 홈 화면 앱 설정 -->
+    <link rel="manifest" href="manifest-customer.json" />
+
+    <link rel="apple-touch-icon" href="customer-apple-touch-icon.png" />
+
+    <meta name="theme-color" content="#0d47a1" />
+
+    <meta name="apple-mobile-web-app-capable" content="yes" />
+
+    <meta name="apple-mobile-web-app-title" content="동원모터펌프 AS" />
+
+    <meta name="apple-mobile-web-app-status-bar-style" content="default" />
+
     <link rel="stylesheet" href="style.css" />
   </head>
 
@@ -18,13 +31,14 @@
 
         <div>
           <p class="company-name">동원모터펌프</p>
+
           <h1>AS 방문 접수</h1>
         </div>
       </header>
 
       <!-- 안내문 -->
       <section class="notice">
-        <strong>접수 전 확인해 주세요.</strong>
+        <strong> 접수 전 확인해 주세요. </strong>
 
         <p>
           정확한 제품 확인을 위해 모터·펌프 명판 사진과 이상 부위 사진을 함께
@@ -122,11 +136,17 @@
 
             <select id="equipmentType" name="equipmentType" required>
               <option value="">선택해 주세요</option>
+
               <option value="펌프">펌프</option>
+
               <option value="모터">모터</option>
+
               <option value="모터펌프 세트">모터펌프 세트</option>
+
               <option value="제어판넬">제어판넬</option>
+
               <option value="잘 모르겠음">잘 모르겠음</option>
+
               <option value="기타">기타</option>
             </select>
           </div>
@@ -153,13 +173,13 @@
               <label class="radio-item">
                 <input type="radio" name="urgent" value="보통" checked />
 
-                <span>일반 접수</span>
+                <span> 일반 접수 </span>
               </label>
 
               <label class="radio-item urgent">
                 <input type="radio" name="urgent" value="긴급" />
 
-                <span>긴급 접수</span>
+                <span> 긴급 접수 </span>
               </label>
             </div>
           </div>
@@ -241,9 +261,13 @@
 
             <select id="visitTime" name="visitTime" required>
               <option value="">선택해 주세요</option>
+
               <option value="오전 9시~12시">오전 9시~12시</option>
+
               <option value="오후 12시~3시">오후 12시~3시</option>
+
               <option value="오후 3시~6시">오후 3시~6시</option>
+
               <option value="시간 협의 가능">시간 협의 가능</option>
             </select>
           </div>
@@ -270,7 +294,8 @@
 
           <a href="tel:010-5203-0110" class="phone-button">
             ☎ AS 대리점 연결
-            <strong>010-5203-0110</strong>
+
+            <strong> 010-5203-0110 </strong>
           </a>
         </section>
 
@@ -291,6 +316,7 @@
     </main>
 
     <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+
     <script src="app.js"></script>
   </body>
 </html>
