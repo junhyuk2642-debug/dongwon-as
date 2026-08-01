@@ -2,6 +2,7 @@
   "id": "/admin-app",
   "name": "동원모터펌프 관리자",
   "short_name": "동원 관리자",
+  "description": "동원모터펌프 AS 관리자 페이지",
   "start_url": "/admin.html",
   "scope": "/",
   "display": "standalone",
