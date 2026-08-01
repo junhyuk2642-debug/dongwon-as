@@ -335,3 +335,53 @@ input[type='file'] {
 .phone-button:hover {
   background-color: #1849a9;
 }
+/* 고객용 앱 설치 안내 */
+
+.install-section {
+  margin-bottom: 18px;
+  padding: 17px;
+  border: 1px solid #cbd9ef;
+  border-radius: 14px;
+  background: #eef5ff;
+}
+
+.install-section strong {
+  color: #173b79;
+  font-size: 16px;
+}
+
+.install-section p {
+  margin: 6px 0 0;
+  color: #59677d;
+  font-size: 14px;
+  line-height: 1.5;
+}
+
+.install-app-button {
+  width: 100%;
+  min-height: 48px;
+  margin-top: 13px;
+  border: 0;
+  border-radius: 10px;
+  background: #0d47a1;
+  color: white;
+  font-weight: 900;
+}
+
+.install-app-button:disabled {
+  background: #aab5c5;
+  cursor: default;
+}
+
+.ios-install-guide {
+  margin-top: 12px !important;
+  padding: 11px;
+  border-radius: 9px;
+  background: white;
+  color: #34435b !important;
+  font-weight: 700;
+}
+
+.hidden {
+  display: none !important;
+}
